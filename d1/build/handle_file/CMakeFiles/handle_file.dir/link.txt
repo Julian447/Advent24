@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhandle_file.a CMakeFiles/handle_file.dir/handle_file.cpp.o
+/usr/bin/ranlib libhandle_file.a
