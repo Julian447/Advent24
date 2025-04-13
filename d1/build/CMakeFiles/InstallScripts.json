@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/julian/code/Advent24/d1/build/cmake_install.cmake",
-		"/home/julian/code/Advent24/d1/build/handle_file/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
