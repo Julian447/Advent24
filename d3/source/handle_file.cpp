@@ -13,37 +13,43 @@ using namespace std;
 
 void HandleFile::part1(){
   regex r("(mul)\\(([0-9]+)\\,([0-9]+)\\)");
-  smatch ma;
-  while(regex_search(str, ma, r))
+  smatch m;
+  while(regex_search(str, m, r))
   {
-    // std::cout << ma[0] << std::endl;
-    auto full = ma[0];
-    auto x = stoi(ma[2]);
-    auto y = stoi(ma[3]);
+    // std::cout << m[0] << std::endl;
+    auto full = m[0];
+    auto x = stoi(m[2]);
+    auto y = stoi(m[3]);
     mult += x*y;
 
     // std::cout << full << std::endl;
     // std::cout << x*y << std::endl;
     
-    str = ma.suffix();
+    str = m.suffix();
   }
 }
 
 void HandleFile::part2(){
-  regex r("(mul)\\(([0-9]+)\\,([0-9]+)\\)");
-  smatch ma;
-  while(regex_search(str, ma, r))
+  regex r("(mul)\\(([0-9]+)\\,([0-9]+)\\)|do\\(\\)|don't\\(\\)");
+  smatch m;
+  while(regex_search(str, m, r))
   {
-    // std::cout << ma[0] << std::endl;
-    auto full = ma[0];
-    auto x = stoi(ma[2]);
-    auto y = stoi(ma[3]);
-    mult += x*y;
+    if (m[0] == "do()")
+      enabled = true;
+    else if (m[0] == "don't()")
+      enabled = false;
+    else if (enabled) {
+      auto full = m[0];
+      auto x = stoi(m[2]);
+      auto y = stoi(m[3]);
+      mult += x*y;
+    }
 
+    // std::cout << m[0] << std::endl;
     // std::cout << full << std::endl;
     // std::cout << x*y << std::endl;
     
-    str = ma.suffix();
+    str = m.suffix();
   }
 }
 
@@ -51,7 +57,8 @@ void HandleFile::get_file(){
   ifstream file("../input.txt");
   while (getline(file, str)) {
     // Process str
-    part1();
+    // part1();
+    part2();
   }
   cout << mult << endl;
 }
