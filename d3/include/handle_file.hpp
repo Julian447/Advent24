@@ -5,10 +5,12 @@
 using namespace std;
 
 class HandleFile {
-  // std::vector<int> vec;
-  // std::vector<map<string, vector<int>>> vec_from_input;
+  string str; 
+  int mult = 0;
   
   public:
     void get_file();
+    void part1();
+    void part2();
 };
 
