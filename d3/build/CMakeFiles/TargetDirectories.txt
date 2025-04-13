@@ -1,0 +1,6 @@
+/home/julian/code/Advent24/d3/build/CMakeFiles/main.dir
+/home/julian/code/Advent24/d3/build/CMakeFiles/edit_cache.dir
+/home/julian/code/Advent24/d3/build/CMakeFiles/rebuild_cache.dir
+/home/julian/code/Advent24/d3/build/source/CMakeFiles/handle_file.dir
+/home/julian/code/Advent24/d3/build/source/CMakeFiles/edit_cache.dir
+/home/julian/code/Advent24/d3/build/source/CMakeFiles/rebuild_cache.dir

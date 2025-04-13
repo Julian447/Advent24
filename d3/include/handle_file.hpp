@@ -1,12 +1,14 @@
+#include <map>
+#include <string>
 #include <vector>
+
+using namespace std;
 
 class HandleFile {
   // std::vector<int> vec;
-  std::vector<std::vector<int>> vec_of_reports;
-  int sorted_count = 0;
+  // std::vector<map<string, vector<int>>> vec_from_input;
+  
   public:
     void get_file();
-    void is_safe();
-
 };
 
