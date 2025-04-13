@@ -1,2 +1,0 @@
-/usr/bin/ar qc libd1.a CMakeFiles/d1.dir/handle_file.cpp.o
-/usr/bin/ranlib libd1.a
