@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <regex>
+#include <set>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -150,6 +151,118 @@ void HandleFile::part1(){
 }
 
 void HandleFile::part2(){
+  print();
+  load_guards();
+
+  size_t i = position.first, j = position.second;
+  bool blockade_placed = false;
+  int loops = 0; 
+  pair<int,int> block_pos;
+  auto original_input = input;
+  auto original_pos = position;
+  auto original_dir = direction;
+  set<tuple<int, int,string>> visited_positions;
+
+  auto moveForward = [&]() -> pair<int,int>{
+      if (direction == "up") return {-1, 0};
+      if (direction == "right") return {0, 1};
+      if (direction == "down") return {1, 0};
+      if (direction == "left") return {0, -1};
+      return {i, j}; // Should not reach here
+  };
+
+  auto place_blockade = [&](){
+    auto moves = moveForward();
+    auto di = moves.first, dj = moves.second;
+    original_input = input;
+    original_pos = position;
+    original_dir = direction;
+
+    if (input[i+di][j+dj] != '^') {
+      input[i+di][j+dj] = 'O';
+      block_pos = {i+di, j+dj};
+      blockade_placed = true;
+    }
+  };
+  auto remove_blockade = [&](){
+    //restore state
+    blockade_placed = false;
+    input = original_input;
+    position = original_pos;
+    direction = original_dir;
+    auto moves = moveForward();
+    i = position.first + moves.first;
+    j = block_pos.second + moves.second;
+    visited_positions.clear();
+  };
+
+
+  auto step = [&]() -> bool {
+    auto moves = moveForward();
+    auto di = moves.first, dj = moves.second;
+
+    if (input[i][j] != '^') {
+      if ((direction == "up" || direction == "down") && input[i][j] == '.') input[i][j] = '|';
+      else if ((direction == "up" || direction == "down") && input[i][j] == '-') input[i][j] = '+';
+      else if ((direction == "left" || direction == "right") && input[i][j] == '.') input[i][j] = '-';
+      else if ((direction == "left" || direction == "right") && input[i][j] == '|') input[i][j] = '+';
+    }
+
+    if (visited_positions.count({i,j,direction})) {
+      loops++;
+      cout << "Detected a loop at " << i << ", " << j << endl;
+      // print();
+      // cout << endl;
+      // remove_blockade();
+      return false; // or break, or whatever your logic is
+    } else {
+      // cout << i << " " << j << " " << direction << endl;
+      visited_positions.insert({i,j,direction});
+    }
+
+    if (!in_bounds(i + di, j + dj) && blockade_placed == true) {
+      remove_blockade();
+      return false;
+    }
+    else if (!in_bounds(i + di, j + dj)) {
+      return false;
+    }
+    
+    if (input[i + di][j + dj] == 'O') {
+      print();
+      cout << endl;
+      change_direction();
+      return true;
+    }
+    if (input[i + di][j + dj] == '#') {
+      print();
+      // cout << endl;
+      // change_direction();
+      return true;
+    }
+
+    i += di;
+    j += dj;
+    position.first = i, position.second = j;
+
+    return true;
+  };
+
+
+  while (true) {
+    // cout << endl;
+    if (blockade_placed == false) place_blockade();
+
+    if (direction == "left" && !step()) break;
+    else if (direction == "up" && !step()) break;
+    else if (direction == "right" && !step()) break;
+    else if (direction == "down" && !step()) break;
+    // }
+  }
+  cout << endl;
+
+  print();
+  cout << loops << endl;
 }
 
 void HandleFile::get_file(){
@@ -158,7 +271,7 @@ void HandleFile::get_file(){
     // Process str
     input.push_back(str);
   }
-  part1();
-  // part2();
+  // part1();
+  part2();
 }
 
