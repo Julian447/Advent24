@@ -156,12 +156,13 @@ void HandleFile::part2(){
 
   size_t i = position.first, j = position.second;
   bool blockade_placed = false;
-  int loops = 0; 
   pair<int,int> block_pos;
+  vector<pair<int,int>> loops{};
   auto original_input = input;
   auto original_pos = position;
   auto original_dir = direction;
   set<tuple<int, int,string>> visited_positions;
+  set<pair<int,int>> tried_blockades;
 
   auto moveForward = [&]() -> pair<int,int>{
       if (direction == "up") return {-1, 0};
@@ -171,18 +172,27 @@ void HandleFile::part2(){
       return {i, j}; // Should not reach here
   };
 
-  auto place_blockade = [&](){
+  auto place_blockade = [&]() -> bool{
     auto moves = moveForward();
     auto di = moves.first, dj = moves.second;
+
+    if (!in_bounds(i + di, j + dj)) return false;
+
+    // Skip if already tried
+    if (tried_blockades.count({i + di, j + dj})) return false;
+
     original_input = input;
     original_pos = position;
     original_dir = direction;
 
-    if (input[i+di][j+dj] != '^') {
+    if (input[i+di][j+dj] != '^' && input[i+di][j+dj] != '#') {
       input[i+di][j+dj] = 'O';
       block_pos = {i+di, j+dj};
+      tried_blockades.insert(block_pos);
       blockade_placed = true;
+      return true;
     }
+    return false;
   };
   auto remove_blockade = [&](){
     //restore state
@@ -190,14 +200,17 @@ void HandleFile::part2(){
     input = original_input;
     position = original_pos;
     direction = original_dir;
+
     auto moves = moveForward();
-    i = position.first + moves.first;
-    j = block_pos.second + moves.second;
+    i = block_pos.first;
+    j = block_pos.second;
     visited_positions.clear();
   };
 
+  int count = 0;
 
   auto step = [&]() -> bool {
+    i = position.first, j = position.second;
     auto moves = moveForward();
     auto di = moves.first, dj = moves.second;
 
@@ -207,37 +220,24 @@ void HandleFile::part2(){
       else if ((direction == "left" || direction == "right") && input[i][j] == '.') input[i][j] = '-';
       else if ((direction == "left" || direction == "right") && input[i][j] == '|') input[i][j] = '+';
     }
-
     if (visited_positions.count({i,j,direction})) {
-      loops++;
+      loops.push_back(pair(i,j));
       cout << "Detected a loop at " << i << ", " << j << endl;
-      // print();
-      // cout << endl;
-      // remove_blockade();
-      return false; // or break, or whatever your logic is
+      return false;
     } else {
-      // cout << i << " " << j << " " << direction << endl;
       visited_positions.insert({i,j,direction});
+      // count++;
+      if (!in_bounds(i + di, j + dj)) {
+        return false;
+      }
     }
 
-    if (!in_bounds(i + di, j + dj) && blockade_placed == true) {
-      remove_blockade();
-      return false;
-    }
-    else if (!in_bounds(i + di, j + dj)) {
+    if (!in_bounds(i + di, j + dj)) {
       return false;
     }
     
-    if (input[i + di][j + dj] == 'O') {
-      print();
-      cout << endl;
+    if (input[i + di][j + dj] == '#' || input[i + di][j + dj] == 'O') {
       change_direction();
-      return true;
-    }
-    if (input[i + di][j + dj] == '#') {
-      print();
-      // cout << endl;
-      // change_direction();
       return true;
     }
 
@@ -250,19 +250,19 @@ void HandleFile::part2(){
 
 
   while (true) {
-    // cout << endl;
-    if (blockade_placed == false) place_blockade();
-
-    if (direction == "left" && !step()) break;
-    else if (direction == "up" && !step()) break;
-    else if (direction == "right" && !step()) break;
-    else if (direction == "down" && !step()) break;
-    // }
+    if ((direction == "left" || direction == "up" || direction == "right" || direction == "down") && !step()) {
+      if (blockade_placed) {
+        remove_blockade();
+        continue; // Try again with a new blockade
+      } else {
+        break; // No more moves possible, exit loop
+      }
+    }
+    if (!blockade_placed) place_blockade();
   }
   cout << endl;
-
   print();
-  cout << loops << endl;
+  cout << loops.size() << endl;
 }
 
 void HandleFile::get_file(){
