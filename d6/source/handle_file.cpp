@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -36,6 +37,43 @@ void HandleFile::load_guards(){
     }
   }
 }
+void HandleFile::cleaned_patrol() {
+  size_t i = position.first, j = position.second;
+
+  auto step = [&](int di, int dj, char marker) -> bool {
+    if (input[i][j] != 'X') walked++;
+    input[i][j] = 'X';
+
+    if (!in_bounds(i + di, j + dj)) {
+      walked++;
+      return false;
+    }
+
+    if (input[i + di][j + dj] == '#') {
+      input[i][j] = marker;
+      change_direction();
+      // print();
+      return true;
+    }
+
+    i += di;
+    j += dj;
+    position.first = i, position.second = j;
+    return true;
+  };
+
+  while (true) {
+    if (direction == "left") {
+      if (!step(0, -1, '^')) break;
+    } else if (direction == "up") {
+      if (!step(-1, 0, '>')) break;
+    } else if (direction == "right") {
+      if (!step(0, 1, 'v')) break;
+    } else if (direction == "down") {
+      if (!step(1, 0, '<')) break;
+    }
+  }
+}
 void HandleFile::patrol(){
   size_t i = position.first;
   size_t j = position.second;
@@ -55,7 +93,6 @@ void HandleFile::patrol(){
       if (input[i][j-1] == '#') {
         input[i][j] = '^';
         change_direction();
-        print();
         cout << "Walked: " << walked << endl;
       }
     }
@@ -69,7 +106,6 @@ void HandleFile::patrol(){
       if (input[i-1][j] == '#') {
         input[i][j] = '>';
         change_direction();
-        print();
         cout << "Walked: " << walked << endl;
       }
     }
@@ -83,7 +119,6 @@ void HandleFile::patrol(){
       if (input[i][j+1] == '#') {
         input[i][j] = 'v';
         change_direction();
-        print();
         cout << "Walked: " << walked << endl;
       }
     }
@@ -97,7 +132,6 @@ void HandleFile::patrol(){
       if (input[i+1][j] == '#') {
         input[i][j] = '<';
         change_direction();
-        print();
         cout << "Walked: " << walked << endl;
       }
     }
@@ -107,13 +141,9 @@ void HandleFile::patrol(){
 void HandleFile::part1(){
   print();
   load_guards();
+  // patrol();
+  cleaned_patrol();
   cout << endl;
-  patrol();
-  cout << endl;
-  // for (auto guard : guards) {
-  //   cout << guard.first << " " << guard.second << endl;
-  // }
-  // cout << "position: " << position.first << " " << position.second << endl;
 
   print();
   cout << "Walked: " << walked << endl;

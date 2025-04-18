@@ -22,6 +22,7 @@ class HandleFile {
     void change_direction();
     void load_guards();
     void patrol();
+    void cleaned_patrol();
     bool in_bounds(int i, int j) const {
     return i >= 0 && i < static_cast<int>(input.size()) &&
            j >= 0 && j < static_cast<int>(input[0].size());
