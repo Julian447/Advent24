@@ -26,8 +26,9 @@ bool HandleFile::combine(uint64_t result, const vector<uint64_t>& combinators) {
       return current == result;
     }
 
-    int next = combinators[index];
-    return dfs(current + next, index + 1) || dfs(current * next, index + 1);
+    uint64_t next = combinators[index];
+    uint64_t comb = stoull(to_string(current) + to_string(next));
+    return dfs(current + next, index + 1) || dfs(current * next, index + 1) || dfs(comb, index + 1);
   };
 
   // Start from the first number, begin chaining from index 1
