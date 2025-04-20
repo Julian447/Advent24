@@ -66,6 +66,45 @@ void HandleFile::part1(){
 }
 
 void HandleFile::part2(){
+  print();
+  load();
+
+  auto insert_antenna = [&](int x, int y, int dx, int dy, char marker){
+    while (in_bounds(x,y)) {
+      cout << "X: " << x << ", Y: " << y << endl;
+      if (input[x][y] == '.')
+        input[x][y] = '#';
+      // if (input[x][y] == '.' || input[x][y] == marker)
+      if (std::find(antinodes.begin(), antinodes.end(),pair(x,y))==antinodes.end())
+        antinodes.push_back(pair(x,y));
+      x+=dx;
+      y+=dy;
+    }
+    print();
+    cout << endl;
+  };
+  
+  cout << endl;
+  for (auto frequency : antennas) {
+    // cout << "Type: " << frequency.first << ", Count: " << frequency.second.size() << endl;
+    for (size_t i = 0; i < frequency.second.size(); ++i) {
+      for (size_t j = i; j < frequency.second.size(); ++j) {
+        if (frequency.second[i] == frequency.second[j])
+          continue;
+        
+        int x_diff = frequency.second[j].first - frequency.second[i].first;
+        int y_diff = frequency.second[j].second - frequency.second[i].second;
+        // cout << "X: " << x_diff << ", Y: " << y_diff << endl;
+        int x = frequency.second[j].first;
+        int y = frequency.second[j].second;
+        insert_antenna(x, y, -x_diff, -y_diff, frequency.first);
+        insert_antenna(x, y, x_diff, y_diff, frequency.first);
+      }
+
+    }
+  }
+  print();
+  cout << "Antinodes: " << antinodes.size() << endl;
 }
 
 void HandleFile::get_file(){
@@ -74,7 +113,7 @@ void HandleFile::get_file(){
     // Process str
     input.push_back(str);
   }
-  part1();
-  // part2();
+  // part1();
+  part2();
 }
 
