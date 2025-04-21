@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <sys/types.h>
 #include <utility>
 #include <vector>
 
@@ -38,21 +40,6 @@ void HandleFile::load(){
   }
 }
 
-void HandleFile::sort() {
-  size_t i;
-  size_t j;
-  for (i = disk.size()-1; i > 0; --i) {
-    if (disk[i] != "."){
-      for (j = 0; j < i; ++j) {
-        if (disk[j] == ".") {
-          swap(disk[j],disk[i]);
-          break;
-        }
-      }
-    } 
-  }
-}
-
 void HandleFile::checksum() {
   cout << "Length: " << disk.size() << endl;
   for (size_t i = 0; i < disk.size()-1; ++i) {
@@ -65,18 +52,92 @@ void HandleFile::checksum() {
 }
 
 void HandleFile::part1(){
+  auto sort_disk = [&](){
+    size_t i;
+    size_t j;
+    for (i = disk.size()-1; i > 0; --i) {
+      if (disk[i] != "."){
+        for (j = 0; j < i; ++j) {
+          if (disk[j] == ".") {
+            swap(disk[j],disk[i]);
+            break;
+          }
+        }
+      } 
+    }
+  };
+
   load();
   print();
-
-  sort();
-  print();
+  sort_disk();
   checksum();
+  cout << endl;
+
   print();
   cout << "Sum: " << sum << endl;
 }
 
 void HandleFile::part2(){
-  print();
+  auto sort_disk = [&](){
+    size_t i;
+    size_t j;
+    struct Block {
+      string id;
+      int start;
+      int length;
+    };
+    vector<Block> files;
+    vector<Block> dots;
+    
+    //find file groups
+    for (int i = 0; i < disk.size(); ){
+      if (disk[i] != ".") {
+        string id = disk[i];
+        int start = i;
+        while(i < disk.size() && disk[i] == id) i++;
+        files.push_back({id,start,i-start});
+      } else {
+        i++;
+      }
+    }
+    //find dot groups
+    auto find_dots = [&](int len)->Block{
+      for (int i = 0; i < disk.size(); ){
+        if (disk[i] == ".") {
+          string id = disk[i];
+          int start = i;
+          while(i < disk.size() && disk[i] == id) i++;
+          if (len <= i-start)
+            return {id,start,i-start};
+        } else {
+          i++;
+        }
+      }
+      return {"-1",0,0};
+    };
+    
+    while (files.size() > 0){
+      auto file = files.back();
+      files.pop_back();
+      auto dot = find_dots(file.length);
+      if (file.length <= dot.length && file.start >= dot.start+file.length){
+        swap_ranges(disk.begin()+file.start, disk.begin()+file.start+file.length, disk.begin()+dot.start);
+        dot.length-=file.length;
+        dot.start+=file.length;
+      }
+
+    }
+
+
+  };
+  load();
+  // print();
+  sort_disk();
+  checksum();
+  cout << endl;
+
+  // print();
+  cout << "Sum: " << sum << endl;
 }
 
 void HandleFile::get_file(){
@@ -85,7 +146,7 @@ void HandleFile::get_file(){
     // Process str
     input = str;
   }
-  part1();
-  // part2();
+  // part1();
+  part2();
 }
 

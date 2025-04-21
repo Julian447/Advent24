@@ -22,6 +22,5 @@ class HandleFile {
     void print();
     void load();
     void checksum(); 
-    void sort();
 };
 
